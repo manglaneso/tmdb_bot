@@ -69,10 +69,11 @@ function deleteWebHook() {
  * @param {object} msg Telegram API message resource
  * @param {string} message Message to send to chat
  * @param {boolean} replyTo True if the message to send is a reply to the provided message
+ * @param {object} replyMarkup 
  *
  * @return {object} JSON response returned by Telegram API
  */
-function sendMessage(msg, message, replyTo=false) {
+function sendMessage(msg, message, replyTo=false, replyMarkup=null) {
   let payload = {
     'method': 'sendMessage',
     'chat_id': String(msg['chat']['id']),
@@ -83,10 +84,15 @@ function sendMessage(msg, message, replyTo=false) {
   if(replyTo) {
     payload['reply_to_message_id'] = msg['message_id']
   }
+  
+  if(replyMarkup) {
+    payload['reply_markup'] = JSON.stringify(replyMarkup)
+  }
 
   let data = {
     'method': 'POST',
-    'payload': payload
+    'payload': payload,
+    'muteHttpExceptions': true
   }
   
   return JSON.parse(UrlFetchApp.fetch(apiTelegramBotBaseUrl + apiToken + '/', data).getContentText());
@@ -319,14 +325,14 @@ function getChat(chatId) {
  *
  * @return {object} JSON response returned by Telegram API
  */
-function answerInlineQuery(inlineQuery, results, cacheTime=1, offset='', isPersonal=true) {
+function answerInlineQuery(inlineQuery, results, cacheTime=1, nextOffset='', isPersonal=true) {
     
   var payload = {
     'method': 'answerInlineQuery',
     'inline_query_id': inlineQuery['id'],
     'results': JSON.stringify(results),
     'cache_time': cacheTime,
-    'next_offset': String(offset),
+    'next_offset': String(nextOffset),
     'is_personal': isPersonal
   }
 

@@ -1,32 +1,12 @@
 let scriptProperties = PropertiesService.getScriptProperties();
 
-const demoRequest = { queryString:
-                     'token=VmarGDGPn3Akw5Kt4xk4ETLwdAtpwcqH', 
-                     parameter: { 
-                       token: 'VmarGDGPn3Akw5Kt4xk4ETLwdAtpwcqH' 
-                     }, 
-                     postData: { 
-                       contents: '{"update_id":41666741,\n"inline_query":{"id":"5885869108612766","from":{"id":1370410,"is_bot":false,"first_name":"Manglaneso","username":"loMasBonitoDelMundo","language_code":"en"},"query":"star","offset":""}}', 
-                       length: 209, 
-                       name: 'postData',
-                       type: 'application/json' 
-                     }, 
-                     contentLength: 209, 
-                     parameters: {
-                       token: [
-                         'VmarGDGPn3Akw5Kt4xk4ETLwdAtpwcqH' 
-                       ]
-                     },
-                     contextPath: ''
-                    }
-
 /**
  * Enpoint suscribed as webhook in Telegram API which receives notifications once a message
  * is sent to the bot
  *
  * @param {object} request HTTP Request object received.
  */
-function doPost(request=demoRequest) {
+function doPost(request) {
   console.log(request)
   if(checkTelegramAuth(request)) {
     let update = JSON.parse(request['postData']['contents']);
@@ -42,97 +22,80 @@ function doPost(request=demoRequest) {
       let query = inlineQuery['query'];
       
       if(query != '') {
-        if(inlineQuery['from'].hasOwnProperty('inline_query')) {
-          var searchResults = searchMulti(searchQuery=query, language=inlineQuery['from']['language_code']);
-        } else {
-          var searchResults = searchMulti(searchQuery=query);
+        
+        let page = 1;
+        let nextOffset = 1;
+        
+        if(inlineQuery['offset'] !== '') {
+          page = Number(inlineQuery['offset']) + 1;
+          nextOffset = Number(inlineQuery['offset']) + 1;
         }
         
-        let page = searchResults['page'];
-        
-        //let totalPages = searchResults['total_pages'];
+        if(inlineQuery['from'].hasOwnProperty('inline_query')) {
+          var searchResults = searchMulti(searchQuery=query, language=inlineQuery['from']['language_code'], page=page);
+        } else {
+          var searchResults = searchMulti(searchQuery=query, page=page);
+        }
         
         let answers = [];
         
         let answersCount = 0;
-        Logger.log('Total pages: ' + totalPages)
-        
-        while(page <= 5) {
-          
-          for(let i in searchResults['results']) {
-            if(searchResults['results'][i]['media_type'] == 'tv' || searchResults['results'][i]['media_type'] == 'movie') {
-              let answer = {};
+        for(let i in searchResults['results']) {
+          if(searchResults['results'][i]['media_type'] == 'tv' || searchResults['results'][i]['media_type'] == 'movie') {
+            let answer = {};
             
-              answer['type'] = 'article';
-              answer['id'] = String(answersCount);
-              answer['thumb_url'] = imageBaseUrl + searchResults['results'][i]['poster_path'];
-              answer['hide_url'] = true;
-              
-              if(searchResults['results'][i].hasOwnProperty('overview')) {
-                answer['description'] = searchResults['results'][i]['overview'];
-              }
-              
-              
-              if(searchResults['results'][i].hasOwnProperty('title')) {
-                answer['title'] = searchResults['results'][i]['title'];
-              } else if(searchResults['results'][i].hasOwnProperty('name')) {
-                answer['title'] = searchResults['results'][i]['name'];
-              }
-              
-              let tmdbUrl = '';
-              
-              if(searchResults['results'][i]['media_type'] == 'tv') {
-                tmdbUrl = tmdbBaseTvUrl + searchResults['results'][i]['id'];
-              } else {
-                tmdbUrl = tmdbBaseUrl + searchResults['results'][i]['id'];
-              }
-              
-              answer['url'] = tmdbUrl;
-              
-              answer['input_message_content'] = {
-                'message_text': generateTemplatedText(answer['title'], tmdbUrl, searchResults['results'][i]),
-                'parse_mode': 'HTML'
-              };
-              
-              answers.push(answer);
-              answersCount += 1;
-            }            
-          }
-          
-          Logger.log('Answers length: ' + answers.length)
-          Logger.log('Page: ' + page)
-          page += 1;
-          
-          if(inlineQuery['from'].hasOwnProperty('inline_query')) {
-            searchResults = searchMulti(searchQuery=query, page=page, language=inlineQuery['from']['language_code']);
-          } else {
-            searchResults = searchMulti(searchQuery=query, page=page);
-          }
-          
+            answer['type'] = 'article';
+            answer['id'] = String(answersCount);
+            answer['thumb_url'] = imageBaseUrl + searchResults['results'][i]['poster_path'];
+            answer['hide_url'] = true;
+            
+            if(searchResults['results'][i].hasOwnProperty('overview')) {
+              answer['description'] = searchResults['results'][i]['overview'];
+            }
+            
+            
+            if(searchResults['results'][i].hasOwnProperty('title')) {
+              answer['title'] = searchResults['results'][i]['title'];
+            } else if(searchResults['results'][i].hasOwnProperty('name')) {
+              answer['title'] = searchResults['results'][i]['name'];
+            }
+            
+            let tmdbUrl = '';
+            
+            if(searchResults['results'][i]['media_type'] == 'tv') {
+              tmdbUrl = tmdbBaseTvUrl + searchResults['results'][i]['id'];
+            } else {
+              tmdbUrl = tmdbBaseUrl + searchResults['results'][i]['id'];
+            }
+            
+            answer['url'] = tmdbUrl;
+            
+            answer['input_message_content'] = {
+              'message_text': generateTemplatedText(answer['title'], tmdbUrl, searchResults['results'][i]),
+              'parse_mode': 'HTML'
+            };
+            
+            answers.push(answer);
+            answersCount += 1;
+          }            
         }
         
-        
-        
-        if(answers.length > 50) {
-          if(inlineQuery['offset'] == '') {
-             Logger.log(answerInlineQuery(inlineQuery, answers.slice(0, 50), cacheTime=1, offset=50));
-          } else {
-            let tempOffset = Number(inlineQuery['offset']);
-             Logger.log(answerInlineQuery(inlineQuery, answers.slice(tempOffset, 50), cacheTime=1, offset=tempOffset+50));
-          }
+        if(answers.length >= 20) {
+          answerInlineQuery(inlineQuery, answers, cacheTime=300, nextOffset=nextOffset + 1);    
         } else {
-           Logger.log(answerInlineQuery(inlineQuery, answers, cacheTime=1));
+          answerInlineQuery(inlineQuery, answers, cacheTime=300);    
         }
-        
-        // Logger.log(answerInlineQuery(inlineQuery, answers.splice(0, 50), cacheTime=300));  
+            
       }
               
     } else if(update.hasOwnProperty('message')) {
       let msg = update['message'];
       
       if(msg.hasOwnProperty('text')) {
-        if(msg['text'].indexOf('/start ') > -1) {
-          
+        if(msg['text'].indexOf('/start') > -1) {
+          handleStart(msg);
+        } else {
+          handleMessageDefault(msg);
         }
       }
     }
@@ -168,4 +131,59 @@ function generateTemplatedText(title, tmdbUrl, searchResults) {
   template['data'] = toTemplate;
   
   return template.evaluate().getContent();
+}
+
+function generateInlineKeyboardMarkup(buttonsArray) {
+  let inlineKeyboardMarkup = {
+    'inline_keyboard': buttonsArray
+  };
+  
+  return inlineKeyboardMarkup;
+  
+}
+
+function generateInlineKeyBoardButton(text, switchInlineQuery=null, switchInlineQueryCurrentChat=null) {
+  let inlineKeyboardButton = {
+    'text': text
+  };
+  
+  if(switchInlineQuery || switchInlineQuery === '') {
+    inlineKeyboardButton['switch_inline_query'] = switchInlineQuery
+  }
+  
+  if(switchInlineQueryCurrentChat || switchInlineQueryCurrentChat === '') {
+    inlineKeyboardButton['switch_inline_query_current_chat'] = switchInlineQueryCurrentChat
+  }
+  
+  return inlineKeyboardButton; 
+  
+}
+
+function handleStart(msg) {
+  
+  let localButton = generateInlineKeyBoardButton('🔍 Find me the movie/show', switchInlineQuery=null, switchInlineQueryCurrentChat="");
+  let shareButton = generateInlineKeyBoardButton('↗️ Find & share movies/shows with friends', switchInlineQuery="", switchInlineQueryCurrentChat=null);
+  
+  let buttonsArray = [];
+  buttonsArray.push([localButton]);
+  buttonsArray.push([shareButton]);
+  
+  let inlineKeyboardMarkup = generateInlineKeyboardMarkup(buttonsArray);
+  let msgText = "This bot can help you find and share movies. It works in any chat, just write @themoviedatabase_bot in the text field. Let's try!"
+  sendMessage(msg, msgText, replyTo=false, replyMarkup=inlineKeyboardMarkup);
+}
+
+function handleMessageDefault(msg) {
+  
+  let queryText = msg['text'];
+  let localButton = generateInlineKeyBoardButton('🔍 In this chat', switchInlineQuery=null, switchInlineQueryCurrentChat=queryText);
+  let shareButton = generateInlineKeyBoardButton('↗️ Share to other chat', switchInlineQuery=queryText, switchInlineQueryCurrentChat=null);
+  
+  let buttonsArray = [];
+  buttonsArray.push([localButton]);
+  buttonsArray.push([shareButton]);
+  
+  let inlineKeyboardMarkup = generateInlineKeyboardMarkup(buttonsArray);
+  let msgText = `You come to me and ask me to search for '<b>${queryText}</b>'. Now I ask you... where?`;
+  sendMessage(msg, msgText, replyTo=false, replyMarkup=inlineKeyboardMarkup);
 }
