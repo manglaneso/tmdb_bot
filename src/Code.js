@@ -10,15 +10,11 @@ function doPost(request) {
   console.log(request)
   if(checkTelegramAuth(request)) {
     let update = JSON.parse(request['postData']['contents']);
-    
-    console.log(update)
-      
+          
     // Make sure this is update is a type message
     if (update.hasOwnProperty('inline_query')) {
       let inlineQuery = update['inline_query'];
-      
-      console.info(JSON.stringify(inlineQuery));
-      
+            
       let query = inlineQuery['query'];
       
       if(query != '') {
@@ -95,7 +91,9 @@ function doPost(request) {
         if(msg['text'].indexOf('/start') > -1) {
           handleStart(msg);
         } else {
-          handleMessageDefault(msg);
+          if(!msg.hasOwnProperty('via_bot')) {
+            handleMessageDefault(msg);
+          }
         }
       }
     }
