@@ -6,4 +6,4 @@
 
 [IMDB Telegram bot](https://t.me/imdb) clone using [TMDB](https://themoviedb.org) for getting info about movies and TV shows.
 
-You can talk to it clicking on the [following link](https://t.me/themdb_bot).
+Just write @themdb_bot in any Telegram chat and start using it! Yoy can also talk to it clicking on the [following link](https://t.me/themdb_bot).
