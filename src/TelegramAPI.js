@@ -321,8 +321,9 @@ function getChat(chatId) {
  *
  * @param {object} inlineQuery Telegram API inline query resource
  * @param {array} results Array of answer results to the inline query
- * @param {number} chacheTime The maximum amount of time in seconds that the result of the inline query may be cached on the server
- *
+ * @param {number} cacheTime The maximum amount of time in seconds that the result of the inline query may be cached on the server
+ * @param {string} nextOffset TOffset to be passed by next update with the same inlineQuery
+ * @param {boolean} isPersonal Check if API server must store state of request by the user performing it
  * @return {object} JSON response returned by Telegram API
  */
 function answerInlineQuery(inlineQuery, results, cacheTime=1, nextOffset='', isPersonal=true) {

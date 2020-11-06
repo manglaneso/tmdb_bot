@@ -1,0 +1,22 @@
+{
+  "name": "tmdb_bot",
+  "version": "1.0.0",
+  "description": "TMDB Telegram bot",
+  "main": "src/Code.js",
+  "scripts": {
+    "push-to-app": "cd src && clasp push --force"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manglaneso/tmdb_bot.git"
+  },
+  "author": "Manglaneso",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/manglaneso/tmdb_bot/issues"
+  },
+  "homepage": "https://github.com/manglaneso/tmdb_bot#readme",
+  "dependencies": {
+    "@google/clasp": "^2.3.0"
+  }
+}
