@@ -1,10 +1,17 @@
 {
   "timeZone": "Europe/Madrid",
   "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "TelegramBotAPI",
+        "version": "4",
+        "libraryId": "1doJWr3Q1v2WZamAvcT2_xr6p12wNvheF403cXdYhTbTxu6GMvWkqwarn"
+      }
+    ]
   },
   "webapp": {
-    "access": "ANYONE_ANONYMOUS",
-    "executeAs": "USER_DEPLOYING"
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
   },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8"
