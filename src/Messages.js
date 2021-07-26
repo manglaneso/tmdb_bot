@@ -13,7 +13,7 @@ function handleStart(msg) {
   
   let inlineKeyboardMarkup = generateInlineKeyboardMarkup(buttonsArray);
   let msgText = "This bot can help you find and share movies. It works in any chat, just write @themoviedatabase_bot in the text field. Let's try!"
-  sendMessage(msg, msgText, replyTo=false, replyMarkup=inlineKeyboardMarkup);
+  telegramApi.sendMessage(msg, msgText, replyTo=false, replyMarkup=inlineKeyboardMarkup);
 }
 
 /**
@@ -32,5 +32,5 @@ function handleMessageDefault(msg) {
   
   let inlineKeyboardMarkup = generateInlineKeyboardMarkup(buttonsArray);
   let msgText = `You come to me and ask me to search for '<b>${queryText}</b>'. Now I ask you... where?`;
-  sendMessage(msg, msgText, replyTo=false, replyMarkup=inlineKeyboardMarkup);
+  telegramApi.sendMessage(msg, msgText, replyTo=false, replyMarkup=inlineKeyboardMarkup);
 }

@@ -90,7 +90,7 @@ function getMovieDirector(movieObject) {
   let crew = movieObject['credits']['crew']
   
   for(let elem in crew) {
-    if(crew[elem]['job'] == 'Director')
+    if(crew[elem]['job'] === 'Director')
       return crew[elem]['name'];
   }  
 }

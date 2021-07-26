@@ -8,7 +8,7 @@
  */
 function checkTelegramAuth(request) {
   if(request['parameter'] && request['parameter']['token']) {
-    return request['parameter']['token'] == scriptProperties.getProperty('TelegramAPIAuthToken')
+    return request['parameter']['token'] === scriptProperties.getProperty('TelegramAPIAuthToken')
   }
   
   return false;

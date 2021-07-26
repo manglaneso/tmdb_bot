@@ -1,5 +1,7 @@
 let scriptProperties = PropertiesService.getScriptProperties();
 
+const telegramApi = TelegramBotAPI.client(scriptProperties.getProperty('TelegramBotApiToken'));
+
 /**
  * Enpoint suscribed as webhook in Telegram API which receives notifications once a message
  * is sent to the bot

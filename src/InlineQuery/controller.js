@@ -6,7 +6,7 @@
 function handleInlineQuery(inlineQuery) {
   let query = inlineQuery['query'];
       
-  if(query != '') {
+  if(query !== '') {
     
     let page = 1;
     let nextOffset = 1;
@@ -26,7 +26,7 @@ function handleInlineQuery(inlineQuery) {
     
     let answersCount = 0;
     for(let i in searchResults['results']) {
-      if(searchResults['results'][i]['media_type'] == 'tv' || searchResults['results'][i]['media_type'] == 'movie') {
+      if(searchResults['results'][i]['media_type'] === 'tv' || searchResults['results'][i]['media_type'] === 'movie') {
         let answer = {};
         
         answer['type'] = 'article';
@@ -47,7 +47,7 @@ function handleInlineQuery(inlineQuery) {
         
         let tmdbUrl = '';
         
-        if(searchResults['results'][i]['media_type'] == 'tv') {
+        if(searchResults['results'][i]['media_type'] === 'tv') {
           tmdbUrl = tmdbBaseTvUrl + searchResults['results'][i]['id'];
         } else {
           tmdbUrl = tmdbBaseUrl + searchResults['results'][i]['id'];
@@ -66,9 +66,9 @@ function handleInlineQuery(inlineQuery) {
     }
     
     if(answers.length >= 20) {
-      answerInlineQuery(inlineQuery, answers, cacheTime=300, nextOffset=nextOffset + 1);    
+      telegramApi.answerInlineQuery(inlineQuery, answers, cacheTime=300, nextOffset=nextOffset + 1);
     } else {
-      answerInlineQuery(inlineQuery, answers, cacheTime=300);    
+      telegramApi.answerInlineQuery(inlineQuery, answers, cacheTime=300);
     }
     
   }
@@ -81,11 +81,9 @@ function handleInlineQuery(inlineQuery) {
  * @return {object} InlineKeyboardMarkup object generated
  */
 function generateInlineKeyboardMarkup(buttonsArray) {
-  let inlineKeyboardMarkup = {
+  return {
     'inline_keyboard': buttonsArray
   };
-  
-  return inlineKeyboardMarkup;
   
 }
 
@@ -139,7 +137,7 @@ function generateTemplatedText(title, tmdbUrl, searchResults) {
     toTemplate['description'] = '';
   }
     
-  if(searchResults['media_type'] == 'tv') {
+  if(searchResults['media_type'] === 'tv') {
     tmdbUrl = tmdbBaseTvUrl + searchResults['id'];
   } else {
     tmdbUrl = tmdbBaseUrl + searchResults['id'];
